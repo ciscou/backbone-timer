@@ -1,5 +1,5 @@
 html, body, .off-canvas-wrap, #stackmattimer {
-  min-height: 100%; }
+  height: 100%; }
 
 #display {
   margin-top: 16px;
