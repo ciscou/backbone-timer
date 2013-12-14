@@ -25,7 +25,7 @@ $ ->
       @average(12)
     average: (n) ->
       if @length >= n
-        times = @slice(@length-n, @length).map (e) -> e.get("ms")
+        times = @slice(0, n).map (e) -> e.get("ms")
         sum   = times.reduce ((a, e) -> a + e), 0
         best  = _.min times
         worst = _.max times
@@ -100,6 +100,7 @@ $ ->
         @state = "start"
         clearTimeout @pressingTo
         @pad.text "Press and hold to start"
+        $(".left-off-canvas-toggle").click() if @state == "finished"
       else if @state == "ready"
         @startTime = new Date().getTime()
         @currentTime.set("ms", 0)
