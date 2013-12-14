@@ -96,17 +96,20 @@ $ ->
         Times.create @currentTime.attributes, at: 0
     onMouseUp: (e) ->
       e.preventDefault()
-      if @state == "pressing" || @state == "finished"
+      if @state == "pressing"
         @state = "start"
         clearTimeout @pressingTo
         @pad.text "Press and hold to start"
-        $(".left-off-canvas-toggle").click() if @state == "finished"
       else if @state == "ready"
         @startTime = new Date().getTime()
         @currentTime.set("ms", 0)
         @runningTo = setTimeout _.bind(@onRunningTimeout, this), 50
         @state = "running"
         @pad.text "Press to stop"
+      else if @state == "finished"
+        @state = "start"
+        @pad.text "Press and hold to start"
+        $(".left-off-canvas-toggle").click()
     onPressingTimeout: ->
       @state = "ready"
       @pad.text "Release to start"
