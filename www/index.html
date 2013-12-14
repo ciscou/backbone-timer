@@ -1,42 +1,74 @@
 <!DOCTYPE html>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Hello World</title>
-    </head>
-    <body>
-        <div class="app">
-            <h1>PhoneGap</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
+<html class='no-js' lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'>
+    <link href='css/foundation.css' rel='stylesheet'>
+    <link href='css/stackmattimer.css' rel='stylesheet'>
+    <script src='js/modernizr.js'></script>
+    <script src='js/jquery-2.0.3.js'></script>
+    <script src='js/underscore.js'></script>
+    <script src='js/backbone.js'></script>
+    <script src='js/backbone.localStorage-min.js'></script>
+    <script src='js/stackmattimer.js'></script>
+    <title>Backbone Demo</title>
+  </head>
+  <body>
+    <div class='off-canvas-wrap'>
+      <div class='inner-wrap' id='stackmattimer'>
+        <nav class='tab-bar'>
+          <section class='left-small'>
+            <a class='left-off-canvas-toggle menu-icon'>
+              <span></span>
+            </a>
+          </section>
+          <section class='right tab-bar-section'>
+            <h1 class='title'>Backbone Demo</h1>
+          </section>
+        </nav>
+        <aside class='left-off-canvas-menu'>
+          <ul class='off-canvas-list'>
+            <li>
+              <label>Average of 5</label>
+            </li>
+            <li>
+              <a href='#' id='average-5'></a>
+            </li>
+            <li>
+              <label>Average of 12</label>
+            </li>
+            <li>
+              <a href='#' id='average-12'></a>
+            </li>
+          </ul>
+          <ul class='off-canvas-list' id='time-list'>
+            <li>
+              <label>Times</label>
+            </li>
+          </ul>
+        </aside>
+        <section class='main-section'>
+          <div class='row'>
+            <div class='large-12 columns'>
+              <div class='panel' id='display'></div>
+              <a class='button large expand' href='#' id='pad'>
+                Press and hold to start
+              </a>
             </div>
-        </div>
-        <script type="text/javascript" src="phonegap.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-    </body>
+          </div>
+          <script id='time-template' type='text/template'>
+            <a href="#"><%= formattedTime %></a>
+          </script>
+          <script id='display-template' type='text/template'>
+            <%= formattedTime %>
+          </script>
+        </section>
+        <a class='exit-off-canvas'></a>
+      </div>
+    </div>
+    <script src='js/foundation.min.js'></script>
+    <script>
+      $(document).foundation()
+    </script>
+  </body>
 </html>

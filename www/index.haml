@@ -1,0 +1,57 @@
+!!!5
+%html.no-js{lang: "en"}
+  %head
+    %meta{charset: "utf-8"}
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1.0"}
+    %link{rel: "stylesheet", href: "css/foundation.css"}
+    %link{rel: "stylesheet", href: "css/stackmattimer.css"}
+    %script{src: "js/modernizr.js"}
+    %script{src: "js/jquery-2.0.3.js"}
+    %script{src: "js/underscore.js"}
+    %script{src: "js/backbone.js"}
+    %script{src: "js/backbone.localStorage-min.js"}
+    %script{src: "js/stackmattimer.js"}
+    %title Backbone Demo
+
+  %body
+    .off-canvas-wrap
+      .inner-wrap#stackmattimer
+        %nav.tab-bar
+          %section.left-small
+            %a.left-off-canvas-toggle.menu-icon
+              %span
+          %section.right.tab-bar-section
+            %h1.title Backbone Demo
+
+        %aside.left-off-canvas-menu
+          %ul.off-canvas-list
+            %li
+              %label Average of 5
+            %li
+              %a#average-5{href: "#"}
+            %li
+              %label Average of 12
+            %li
+              %a#average-12{href: "#"}
+          %ul#time-list.off-canvas-list
+            %li
+              %label Times
+
+        %section.main-section
+          .row
+            .large-12.columns
+              #display.panel
+              %a#pad.button.large.expand{href: "#"}
+                Press and hold to start
+
+          %script#time-template{type: "text/template"}
+            <a href="#"><%= formattedTime %></a>
+
+          %script#display-template{type: "text/template"}
+            <%= formattedTime %>
+
+        %a.exit-off-canvas
+
+    %script{src: "js/foundation.min.js"}
+    :javascript
+      $(document).foundation()
