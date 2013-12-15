@@ -14,8 +14,11 @@
           %section.left-small
             %a.left-off-canvas-toggle.menu-icon
               %span
-          %section.right.tab-bar-section
+          %section.middle.tab-bar-section
             %h1.title Backbone Demo
+          %section.right-small
+            %a.right-off-canvas-toggle.menu-icon
+              %span
 
         %aside.left-off-canvas-menu
           %ul.off-canvas-list
@@ -31,12 +34,37 @@
             %li
               %label Times
 
+        %aside.right-off-canvas-menu
+          %ul#puzzles.off-canvas-list
+            %li
+              %label Puzzles
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "222"}} 2x2x2
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "333"}} 3x3x3
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "444"}} 4x4x4
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "555"}} 5x5x5
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "666"}} 6x6x6
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "777"}} 7x7x7
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "mega"}} Megaminx
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "pyra"}} Pyraminx
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "sq1"}} Square-1
+            %li
+              %a.puzzle{href: "#", data: {puzzle: "ufo"}} UFO
+
         %section.main-section
           .row
             .large-12.columns
               #display.panel
               %button#pad.button.large.expand
-                Press and hold to start
+              #scramble
 
           %script#time-template{type: "text/template"}
             <a href="#"><%= formattedTime %></a>

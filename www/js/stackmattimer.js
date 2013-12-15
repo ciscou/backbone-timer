@@ -1,6 +1,6 @@
 (function() {
   $(function() {
-    var App, AppView, DisplayView, Time, TimeList, TimeView, Times;
+    var AppView, DisplayView, Time, TimeList, TimeView, Times;
     Time = Backbone.Model.extend({
       formattedTime: function() {
         var m, ms, s, _ref, _ref1;
@@ -86,31 +86,31 @@
         "mousedown  #pad": "onMouseDown",
         "mouseup    #pad": "onMouseUp",
         "touchstart #pad": "onMouseDown",
-        "touchend   #pad": "onMouseUp"
+        "touchend   #pad": "onMouseUp",
+        "click      #puzzles .puzzle": "onClickPuzzle"
       },
       initialize: function() {
-        this.average5 = this.$("#average-5");
-        this.average12 = this.$("#average-12");
-        this.pad = this.$("#pad");
-        this.state = "start";
-        this.listenTo(Times, "add", this.addTime);
-        this.listenTo(Times, "all", this.render);
+        this.$pad = this.$("#pad");
+        this.$scramble = this.$("#scramble");
         this.currentTime = new Time({
           ms: 0
         });
-        this.display = new DisplayView({
+        new DisplayView({
           model: this.currentTime
         });
-        return Times.fetch();
+        this.listenTo(Times, "add", this.addTime);
+        this.listenTo(Times, "all", this.render);
+        Times.fetch();
+        return this.start();
       },
       render: function() {
         var average12, average5;
         average5 = Times.average5();
         average12 = Times.average12();
-        this.average5.text(average5 != null ? new Time({
+        this.$("#average-5").text(average5 != null ? new Time({
           ms: average5
         }).formattedTime() : "N/A");
-        return this.average12.text(average12 != null ? new Time({
+        return this.$("#average-12").text(average12 != null ? new Time({
           ms: average12
         }).formattedTime() : "N/A");
       },
@@ -126,11 +126,11 @@
         if (this.state === "start") {
           this.state = "pressing";
           this.pressingTo = setTimeout(_.bind(this.onPressingTimeout, this), 400);
-          return this.pad.text("Wait...");
+          return this.$pad.text("Wait...");
         } else if (this.state === "running") {
           this.state = "finished";
           clearTimeout(this.runningTo);
-          this.pad.text("Finished");
+          this.$pad.text("Finished");
           return Times.create(this.currentTime.attributes, {
             at: 0
           });
@@ -139,35 +139,40 @@
       onMouseUp: function(e) {
         e.preventDefault();
         if (this.state === "pressing") {
-          this.state = "start";
-          clearTimeout(this.pressingTo);
-          return this.pad.text("Press and hold to start");
+          this.start();
+          return clearTimeout(this.pressingTo);
         } else if (this.state === "ready") {
           this.startTime = new Date().getTime();
           this.currentTime.set("ms", 0);
           this.runningTo = setTimeout(_.bind(this.onRunningTimeout, this), 50);
           this.state = "running";
-          return this.pad.text("Press to stop");
+          return this.$pad.text("Press to stop");
         } else if (this.state === "finished") {
-          this.state = "start";
-          this.pad.text("Press and hold to start");
+          this.start();
           return $(".left-off-canvas-toggle").click();
         }
       },
+      onClickPuzzle: function(e) {
+        e.preventDefault();
+        this.$scramble.text($(e.currentTarget).data("puzzle"));
+        return $(".right-off-canvas-toggle").click();
+      },
       onPressingTimeout: function() {
         this.state = "ready";
-        return this.pad.text("Release to start");
+        return this.$pad.text("Release to start");
       },
       onRunningTimeout: function() {
         var elapsed;
         elapsed = new Date().getTime() - this.startTime;
         this.currentTime.set("ms", elapsed);
         return this.runningTo = setTimeout(_.bind(this.onRunningTimeout, this), 50);
+      },
+      start: function() {
+        this.state = "start";
+        return this.$pad.text("Press and hold to start");
       }
     });
-    App = new AppView();
-    window.Time = Time;
-    return window.App = App;
+    return new AppView();
   });
 
 }).call(this);

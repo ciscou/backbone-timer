@@ -58,28 +58,28 @@ $ ->
       "mousedown  #pad": "onMouseDown"
       "mouseup    #pad": "onMouseUp",
       "touchstart #pad": "onMouseDown",
-      "touchend   #pad": "onMouseUp"
+      "touchend   #pad": "onMouseUp",
+      "click      #puzzles .puzzle": "onClickPuzzle"
     initialize: ->
-      @average5  = @$("#average-5")
-      @average12 = @$("#average-12")
-      @pad       = @$("#pad")
-      @state = "start"
+      @$pad      = @$("#pad")
+      @$scramble = @$("#scramble")
+      @currentTime = new Time ms: 0
+      new DisplayView model: @currentTime
       @listenTo Times, "add", @addTime
       @listenTo Times, "all", @render
-      @currentTime = new Time ms: 0
-      @display = new DisplayView model: @currentTime
       Times.fetch()
+      @start()
     render: ->
       average5  = Times.average5()
       average12 = Times.average12()
-      @average5.text if average5?
-                       new Time(ms: average5 ).formattedTime()
-                     else
-                       "N/A"
-      @average12.text if average12?
-                        new Time(ms: average12).formattedTime()
-                      else
-                        "N/A"
+      @$("#average-5").text if average5?
+                              new Time(ms: average5).formattedTime()
+                            else
+                              "N/A"
+      @$("#average-12").text if average12?
+                               new Time(ms: average12).formattedTime()
+                             else
+                               "N/A"
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el
@@ -88,37 +88,39 @@ $ ->
       if @state == "start"
         @state = "pressing"
         @pressingTo = setTimeout _.bind(@onPressingTimeout, this), 400
-        @pad.text "Wait..."
+        @$pad.text "Wait..."
       else if @state == "running"
         @state = "finished"
         clearTimeout @runningTo
-        @pad.text "Finished"
+        @$pad.text "Finished"
         Times.create @currentTime.attributes, at: 0
     onMouseUp: (e) ->
       e.preventDefault()
       if @state == "pressing"
-        @state = "start"
+        @start()
         clearTimeout @pressingTo
-        @pad.text "Press and hold to start"
       else if @state == "ready"
         @startTime = new Date().getTime()
         @currentTime.set("ms", 0)
         @runningTo = setTimeout _.bind(@onRunningTimeout, this), 50
         @state = "running"
-        @pad.text "Press to stop"
+        @$pad.text "Press to stop"
       else if @state == "finished"
-        @state = "start"
-        @pad.text "Press and hold to start"
+        @start()
         $(".left-off-canvas-toggle").click()
+    onClickPuzzle: (e) ->
+      e.preventDefault()
+      @$scramble.text $(e.currentTarget).data("puzzle")
+      $(".right-off-canvas-toggle").click()
     onPressingTimeout: ->
       @state = "ready"
-      @pad.text "Release to start"
+      @$pad.text "Release to start"
     onRunningTimeout: ->
       elapsed = new Date().getTime() - @startTime
       @currentTime.set("ms", elapsed)
       @runningTo = setTimeout _.bind(@onRunningTimeout, this), 50
+    start: ->
+      @state = "start"
+      @$pad.text "Press and hold to start"
 
-  App = new AppView()
-
-  window.Time = Time
-  window.App  = App
+  new AppView()

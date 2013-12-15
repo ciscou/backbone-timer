@@ -9,3 +9,6 @@ html, body, .off-canvas-wrap, #stackmattimer {
 #pad {
   padding-top: 6em;
   padding-bottom: 6em; }
+
+#scramble {
+  font-size: 2em; }

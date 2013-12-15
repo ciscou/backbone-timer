@@ -16,8 +16,13 @@
               <span></span>
             </a>
           </section>
-          <section class='right tab-bar-section'>
+          <section class='middle tab-bar-section'>
             <h1 class='title'>Backbone Demo</h1>
+          </section>
+          <section class='right-small'>
+            <a class='right-off-canvas-toggle menu-icon'>
+              <span></span>
+            </a>
           </section>
         </nav>
         <aside class='left-off-canvas-menu'>
@@ -41,13 +46,49 @@
             </li>
           </ul>
         </aside>
+        <aside class='right-off-canvas-menu'>
+          <ul class='off-canvas-list' id='puzzles'>
+            <li>
+              <label>Puzzles</label>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='222' href='#'>2x2x2</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='333' href='#'>3x3x3</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='444' href='#'>4x4x4</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='555' href='#'>5x5x5</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='666' href='#'>6x6x6</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='777' href='#'>7x7x7</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='mega' href='#'>Megaminx</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='pyra' href='#'>Pyraminx</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='sq1' href='#'>Square-1</a>
+            </li>
+            <li>
+              <a class='puzzle' data-puzzle='ufo' href='#'>UFO</a>
+            </li>
+          </ul>
+        </aside>
         <section class='main-section'>
           <div class='row'>
             <div class='large-12 columns'>
               <div class='panel' id='display'></div>
-              <button class='button large expand' id='pad'>
-                Press and hold to start
-              </button>
+              <button class='button large expand' id='pad'></button>
+              <div id='scramble'></div>
             </div>
           </div>
           <script id='time-template' type='text/template'>
