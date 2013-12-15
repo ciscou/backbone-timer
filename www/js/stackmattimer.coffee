@@ -64,6 +64,8 @@ $ ->
       @$pad      = @$("#pad")
       @$scramble = @$("#scramble")
       @currentPuzzle = "333"
+      @$("#puzzles .puzzle").removeClass("selected")
+      @$("#puzzles .puzzle[data-puzzle=#{@currentPuzzle}]").addClass("selected")
       @currentTime = new Time ms: 0
       new DisplayView model: @currentTime
       @listenTo Times, "add", @addTime
@@ -111,7 +113,10 @@ $ ->
         $(".left-off-canvas-toggle").click()
     onClickPuzzle: (e) ->
       e.preventDefault()
-      selectedPuzzle = $(e.currentTarget).data("puzzle")
+      $target = $(e.currentTarget)
+      selectedPuzzle = $target.data("puzzle")
+      @$("#puzzles .puzzle").removeClass("selected")
+      $target.addClass("selected")
       unless @currentPuzzle == selectedPuzzle
         @currentPuzzle = selectedPuzzle
         @restart()

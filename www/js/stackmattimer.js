@@ -93,6 +93,8 @@
         this.$pad = this.$("#pad");
         this.$scramble = this.$("#scramble");
         this.currentPuzzle = "333";
+        this.$("#puzzles .puzzle").removeClass("selected");
+        this.$("#puzzles .puzzle[data-puzzle=" + this.currentPuzzle + "]").addClass("selected");
         this.currentTime = new Time({
           ms: 0
         });
@@ -154,9 +156,12 @@
         }
       },
       onClickPuzzle: function(e) {
-        var selectedPuzzle;
+        var $target, selectedPuzzle;
         e.preventDefault();
-        selectedPuzzle = $(e.currentTarget).data("puzzle");
+        $target = $(e.currentTarget);
+        selectedPuzzle = $target.data("puzzle");
+        this.$("#puzzles .puzzle").removeClass("selected");
+        $target.addClass("selected");
         if (this.currentPuzzle !== selectedPuzzle) {
           this.currentPuzzle = selectedPuzzle;
           this.restart();
