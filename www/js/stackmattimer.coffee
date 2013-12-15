@@ -112,6 +112,7 @@ $ ->
       e.preventDefault()
       @$scramble.text $(e.currentTarget).data("puzzle")
       $(".right-off-canvas-toggle").click()
+      _.chain(Times.models).clone().each (model) -> model.destroy()
     onPressingTimeout: ->
       @state = "ready"
       @$pad.text "Release to start"

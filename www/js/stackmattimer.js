@@ -155,7 +155,10 @@
       onClickPuzzle: function(e) {
         e.preventDefault();
         this.$scramble.text($(e.currentTarget).data("puzzle"));
-        return $(".right-off-canvas-toggle").click();
+        $(".right-off-canvas-toggle").click();
+        return _.chain(Times.models).clone().each(function(model) {
+          return model.destroy();
+        });
       },
       onPressingTimeout: function() {
         this.state = "ready";
