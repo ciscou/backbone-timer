@@ -92,9 +92,9 @@
       initialize: function() {
         this.$pad = this.$("#pad");
         this.$scramble = this.$("#scramble");
-        this.currentPuzzle = "333";
+        localStorage.currentPuzzle || (localStorage.currentPuzzle = "333");
         this.$("#puzzles .puzzle").removeClass("selected");
-        this.$("#puzzles .puzzle[data-puzzle=" + this.currentPuzzle + "]").addClass("selected");
+        this.$("#puzzles .puzzle[data-puzzle=" + localStorage.currentPuzzle + "]").addClass("selected");
         this.currentTime = new Time({
           ms: 0
         });
@@ -162,8 +162,8 @@
         selectedPuzzle = $target.data("puzzle");
         this.$("#puzzles .puzzle").removeClass("selected");
         $target.addClass("selected");
-        if (this.currentPuzzle !== selectedPuzzle) {
-          this.currentPuzzle = selectedPuzzle;
+        if (localStorage.currentPuzzle !== selectedPuzzle) {
+          localStorage.currentPuzzle = selectedPuzzle;
           this.restart();
         }
         return $(".right-off-canvas-toggle").click();
@@ -181,7 +181,7 @@
       start: function() {
         this.state = "start";
         this.$pad.text("Press and hold to start");
-        return this.$scramble.text(this.currentPuzzle);
+        return this.$scramble.text(localStorage.currentPuzzle);
       },
       restart: function() {
         _.chain(Times.models).clone().each(function(model) {
