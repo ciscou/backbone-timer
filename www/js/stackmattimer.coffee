@@ -63,6 +63,7 @@ $ ->
     initialize: ->
       @$pad      = @$("#pad")
       @$scramble = @$("#scramble")
+      @currentPuzzle = "333"
       @currentTime = new Time ms: 0
       new DisplayView model: @currentTime
       @listenTo Times, "add", @addTime
@@ -110,9 +111,11 @@ $ ->
         $(".left-off-canvas-toggle").click()
     onClickPuzzle: (e) ->
       e.preventDefault()
-      @$scramble.text $(e.currentTarget).data("puzzle")
+      selectedPuzzle = $(e.currentTarget).data("puzzle")
+      unless @currentPuzzle == selectedPuzzle
+        @currentPuzzle = selectedPuzzle
+        @restart()
       $(".right-off-canvas-toggle").click()
-      _.chain(Times.models).clone().each (model) -> model.destroy()
     onPressingTimeout: ->
       @state = "ready"
       @$pad.text "Release to start"
@@ -123,5 +126,9 @@ $ ->
     start: ->
       @state = "start"
       @$pad.text "Press and hold to start"
+      @$scramble.text @currentPuzzle
+    restart: ->
+      _.chain(Times.models).clone().each (model) -> model.destroy()
+      @start()
 
   new AppView()

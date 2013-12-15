@@ -92,6 +92,7 @@
       initialize: function() {
         this.$pad = this.$("#pad");
         this.$scramble = this.$("#scramble");
+        this.currentPuzzle = "333";
         this.currentTime = new Time({
           ms: 0
         });
@@ -153,12 +154,14 @@
         }
       },
       onClickPuzzle: function(e) {
+        var selectedPuzzle;
         e.preventDefault();
-        this.$scramble.text($(e.currentTarget).data("puzzle"));
-        $(".right-off-canvas-toggle").click();
-        return _.chain(Times.models).clone().each(function(model) {
-          return model.destroy();
-        });
+        selectedPuzzle = $(e.currentTarget).data("puzzle");
+        if (this.currentPuzzle !== selectedPuzzle) {
+          this.currentPuzzle = selectedPuzzle;
+          this.restart();
+        }
+        return $(".right-off-canvas-toggle").click();
       },
       onPressingTimeout: function() {
         this.state = "ready";
@@ -172,7 +175,14 @@
       },
       start: function() {
         this.state = "start";
-        return this.$pad.text("Press and hold to start");
+        this.$pad.text("Press and hold to start");
+        return this.$scramble.text(this.currentPuzzle);
+      },
+      restart: function() {
+        _.chain(Times.models).clone().each(function(model) {
+          return model.destroy();
+        });
+        return this.start();
       }
     });
     return new AppView();
