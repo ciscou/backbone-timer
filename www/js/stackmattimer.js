@@ -91,7 +91,6 @@
       },
       initialize: function() {
         this.$pad = this.$("#pad");
-        this.$scramble = this.$("#scramble");
         localStorage.currentPuzzle || (localStorage.currentPuzzle = "333");
         this.$("#puzzles .puzzle").removeClass("selected");
         this.$("#puzzles .puzzle[data-puzzle=" + localStorage.currentPuzzle + "]").addClass("selected");
@@ -179,9 +178,11 @@
         return this.runningTo = setTimeout(_.bind(this.onRunningTimeout, this), 50);
       },
       start: function() {
+        var scrambler;
         this.state = "start";
         this.$pad.text("Press and hold to start");
-        return this.$scramble.text(localStorage.currentPuzzle);
+        scrambler = window["scrambler_" + localStorage.currentPuzzle];
+        return this.$("#scramble").text(scrambler != null ? scrambler() : "N/A");
       },
       restart: function() {
         _.chain(Times.models).clone().each(function(model) {

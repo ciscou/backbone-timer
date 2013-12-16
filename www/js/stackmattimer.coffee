@@ -62,7 +62,6 @@ $ ->
       "click      #puzzles .puzzle": "onClickPuzzle"
     initialize: ->
       @$pad      = @$("#pad")
-      @$scramble = @$("#scramble")
       localStorage.currentPuzzle ||= "333"
       @$("#puzzles .puzzle").removeClass("selected")
       @$("#puzzles .puzzle[data-puzzle=#{localStorage.currentPuzzle}]").addClass("selected")
@@ -131,7 +130,11 @@ $ ->
     start: ->
       @state = "start"
       @$pad.text "Press and hold to start"
-      @$scramble.text localStorage.currentPuzzle
+      scrambler = window["scrambler_#{localStorage.currentPuzzle}"]
+      @$("#scramble").text if scrambler?
+                             scrambler()
+                           else
+                             "N/A"
     restart: ->
       _.chain(Times.models).clone().each (model) -> model.destroy()
       @start()
