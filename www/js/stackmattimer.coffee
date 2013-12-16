@@ -133,11 +133,15 @@ $ ->
       elapsed = new Date().getTime() - @startTime
       @currentTime.set("ms", elapsed)
     generateScramble: ->
-      scrambler = window["scrambler_#{localStorage.currentPuzzle}"]
-      @$("#scramble").text if scrambler?
-                             scrambler()
-                           else
-                             "N/A"
+      @generatedScramblers ||= {}
+      if @generatedScramblers[localStorage.currentPuzzle]
+        @$("#scramble").text scramblers[localStorage.currentPuzzle].getRandomScramble().scramble_string
+      else
+        self = this
+        cb = ->
+          self.generatedScramblers[localStorage.currentPuzzle] = true
+          self.generateScramble()
+        scramblers[localStorage.currentPuzzle].initialize cb, Math
     start: ->
       @state = "start"
       @$pad.text "Press and hold to start"

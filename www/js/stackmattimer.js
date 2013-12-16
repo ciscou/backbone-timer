@@ -184,9 +184,18 @@
         return this.currentTime.set("ms", elapsed);
       },
       generateScramble: function() {
-        var scrambler;
-        scrambler = window["scrambler_" + localStorage.currentPuzzle];
-        return this.$("#scramble").text(scrambler != null ? scrambler() : "N/A");
+        var cb, self;
+        this.generatedScramblers || (this.generatedScramblers = {});
+        if (this.generatedScramblers[localStorage.currentPuzzle]) {
+          return this.$("#scramble").text(scramblers[localStorage.currentPuzzle].getRandomScramble().scramble_string);
+        } else {
+          self = this;
+          cb = function() {
+            self.generatedScramblers[localStorage.currentPuzzle] = true;
+            return self.generateScramble();
+          };
+          return scramblers[localStorage.currentPuzzle].initialize(cb, Math);
+        }
       },
       start: function() {
         this.state = "start";
