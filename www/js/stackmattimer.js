@@ -83,10 +83,11 @@
     AppView = Backbone.View.extend({
       el: $("#stackmattimer"),
       events: {
-        "mousedown  #pad": "onMouseDown",
-        "mouseup    #pad": "onMouseUp",
-        "touchstart #pad": "onMouseDown",
-        "touchend   #pad": "onMouseUp",
+        "mousedown   #pad": "onPadPress",
+        "mouseup     #pad": "onPadRelease",
+        "touchstart  #pad": "onPadPress",
+        "touchend    #pad": "onPadRelease",
+        "touchcancel #pad": "onPadRelease",
         "click      #puzzles .puzzle": "onClickPuzzle"
       },
       initialize: function() {
@@ -103,7 +104,8 @@
         this.listenTo(Times, "add", this.addTime);
         this.listenTo(Times, "all", this.render);
         Times.fetch();
-        return this.start();
+        this.start();
+        return this.generateScramble();
       },
       render: function() {
         var average12, average5;
@@ -123,8 +125,7 @@
         });
         return this.$("#time-list li:first-child").after(view.render().el);
       },
-      onMouseDown: function(e) {
-        e.preventDefault();
+      onPadPress: function(e) {
         if (this.state === "start") {
           this.state = "pressing";
           this.pressingTo = setTimeout(_.bind(this.onPressingTimeout, this), 400);
@@ -132,14 +133,14 @@
         } else if (this.state === "running") {
           this.state = "finished";
           clearTimeout(this.runningTo);
+          this.tick();
           this.$pad.text("Finished");
           return Times.create(this.currentTime.attributes, {
             at: 0
           });
         }
       },
-      onMouseUp: function(e) {
-        e.preventDefault();
+      onPadRelease: function(e) {
         if (this.state === "pressing") {
           this.start();
           return clearTimeout(this.pressingTo);
@@ -151,6 +152,8 @@
           return this.$pad.text("Press to stop");
         } else if (this.state === "finished") {
           this.start();
+          this.generateScramble();
+          this.$pad.removeClass("success");
           return $(".left-off-canvas-toggle").click();
         }
       },
@@ -158,7 +161,7 @@
         var $target, selectedPuzzle;
         e.preventDefault();
         $target = $(e.currentTarget);
-        selectedPuzzle = $target.data("puzzle");
+        selectedPuzzle = $target.attr("data-puzzle");
         this.$("#puzzles .puzzle").removeClass("selected");
         $target.addClass("selected");
         if (localStorage.currentPuzzle !== selectedPuzzle) {
@@ -169,26 +172,32 @@
       },
       onPressingTimeout: function() {
         this.state = "ready";
-        return this.$pad.text("Release to start");
+        return this.$pad.addClass("success").text("Release to start");
       },
       onRunningTimeout: function() {
-        var elapsed;
-        elapsed = new Date().getTime() - this.startTime;
-        this.currentTime.set("ms", elapsed);
+        this.tick();
         return this.runningTo = setTimeout(_.bind(this.onRunningTimeout, this), 50);
       },
-      start: function() {
+      tick: function() {
+        var elapsed;
+        elapsed = new Date().getTime() - this.startTime;
+        return this.currentTime.set("ms", elapsed);
+      },
+      generateScramble: function() {
         var scrambler;
-        this.state = "start";
-        this.$pad.text("Press and hold to start");
         scrambler = window["scrambler_" + localStorage.currentPuzzle];
         return this.$("#scramble").text(scrambler != null ? scrambler() : "N/A");
+      },
+      start: function() {
+        this.state = "start";
+        return this.$pad.text("Press and hold to start");
       },
       restart: function() {
         _.chain(Times.models).clone().each(function(model) {
           return model.destroy();
         });
-        return this.start();
+        this.start();
+        return this.generateScramble();
       }
     });
     return new AppView();

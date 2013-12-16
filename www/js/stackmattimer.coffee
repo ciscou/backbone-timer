@@ -55,10 +55,11 @@ $ ->
   AppView = Backbone.View.extend
     el: $("#stackmattimer")
     events:
-      "mousedown  #pad": "onMouseDown"
-      "mouseup    #pad": "onMouseUp",
-      "touchstart #pad": "onMouseDown",
-      "touchend   #pad": "onMouseUp",
+      "mousedown   #pad": "onPadPress"
+      "mouseup     #pad": "onPadRelease",
+      "touchstart  #pad": "onPadPress",
+      "touchend    #pad": "onPadRelease",
+      "touchcancel #pad": "onPadRelease",
       "click      #puzzles .puzzle": "onClickPuzzle"
     initialize: ->
       @$pad      = @$("#pad")
@@ -71,6 +72,7 @@ $ ->
       @listenTo Times, "all", @render
       Times.fetch()
       @start()
+      @generateScramble()
     render: ->
       average5  = Times.average5()
       average12 = Times.average12()
@@ -85,8 +87,7 @@ $ ->
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el
-    onMouseDown: (e) ->
-      e.preventDefault()
+    onPadPress: (e) ->
       if @state == "start"
         @state = "pressing"
         @pressingTo = setTimeout _.bind(@onPressingTimeout, this), 400
@@ -94,10 +95,10 @@ $ ->
       else if @state == "running"
         @state = "finished"
         clearTimeout @runningTo
+        @tick()
         @$pad.text "Finished"
         Times.create @currentTime.attributes, at: 0
-    onMouseUp: (e) ->
-      e.preventDefault()
+    onPadRelease: (e) ->
       if @state == "pressing"
         @start()
         clearTimeout @pressingTo
@@ -109,11 +110,13 @@ $ ->
         @$pad.text "Press to stop"
       else if @state == "finished"
         @start()
+        @generateScramble()
+        @$pad.removeClass "success"
         $(".left-off-canvas-toggle").click()
     onClickPuzzle: (e) ->
       e.preventDefault()
       $target = $(e.currentTarget)
-      selectedPuzzle = $target.data("puzzle")
+      selectedPuzzle = $target.attr("data-puzzle")
       @$("#puzzles .puzzle").removeClass("selected")
       $target.addClass("selected")
       unless localStorage.currentPuzzle == selectedPuzzle
@@ -122,21 +125,25 @@ $ ->
       $(".right-off-canvas-toggle").click()
     onPressingTimeout: ->
       @state = "ready"
-      @$pad.text "Release to start"
+      @$pad.addClass("success").text "Release to start"
     onRunningTimeout: ->
+      @tick()
+      @runningTo = setTimeout _.bind(@onRunningTimeout, this), 50
+    tick: ->
       elapsed = new Date().getTime() - @startTime
       @currentTime.set("ms", elapsed)
-      @runningTo = setTimeout _.bind(@onRunningTimeout, this), 50
-    start: ->
-      @state = "start"
-      @$pad.text "Press and hold to start"
+    generateScramble: ->
       scrambler = window["scrambler_#{localStorage.currentPuzzle}"]
       @$("#scramble").text if scrambler?
                              scrambler()
                            else
                              "N/A"
+    start: ->
+      @state = "start"
+      @$pad.text "Press and hold to start"
     restart: ->
       _.chain(Times.models).clone().each (model) -> model.destroy()
       @start()
+      @generateScramble()
 
   new AppView()
