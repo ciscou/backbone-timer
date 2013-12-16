@@ -60,7 +60,7 @@ $ ->
       "touchstart  #pad": "onPadPress",
       "touchend    #pad": "onPadRelease",
       "touchcancel #pad": "onPadRelease",
-      "click      #puzzles .puzzle": "onClickPuzzle"
+      "click      #puzzles .puzzle": "onClickPuzzle",
     initialize: ->
       @$pad      = @$("#pad")
       localStorage.currentPuzzle ||= "333"
@@ -73,6 +73,8 @@ $ ->
       Times.fetch()
       @start()
       @generateScramble()
+      $(document).keydown _.bind(@onPadPress, @)
+      $(document).keyup   _.bind(@onPadRelease, @)
     render: ->
       average5  = Times.average5()
       average12 = Times.average12()

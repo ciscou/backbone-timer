@@ -105,7 +105,9 @@
         this.listenTo(Times, "all", this.render);
         Times.fetch();
         this.start();
-        return this.generateScramble();
+        this.generateScramble();
+        $(document).keydown(_.bind(this.onPadPress, this));
+        return $(document).keyup(_.bind(this.onPadRelease, this));
       },
       render: function() {
         var average12, average5;
