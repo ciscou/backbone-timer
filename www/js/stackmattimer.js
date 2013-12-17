@@ -153,15 +153,16 @@
     AppView = Backbone.View.extend({
       el: $("#stackmattimer"),
       events: {
-        "mousedown   #pad": "onPadPress",
-        "mouseup     #pad": "onPadRelease",
-        "touchstart  #pad": "onPadPress",
-        "touchend    #pad": "onPadRelease",
-        "touchcancel #pad": "onPadRelease",
+        "mousedown  #pad": "onPadPress",
+        "mouseup    #pad": "onPadRelease",
+        "touchstart #pad": "onPadPress",
+        "touchend   #pad": "onPadRelease",
+        "touchmove  #pad": "onPadMove",
         "click      #puzzles .puzzle": "onClickPuzzle"
       },
       initialize: function() {
         this.$pad = this.$("#pad");
+        this.$pad.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
         localStorage.currentPuzzle || (localStorage.currentPuzzle = "333");
         this.$("#puzzles .puzzle").removeClass("selected");
         this.$("#puzzles .puzzle[data-puzzle=" + localStorage.currentPuzzle + "]").addClass("selected");
@@ -191,6 +192,9 @@
         return this.$("#time-list li:first-child").after(view.render().el);
       },
       onPadPress: function(e) {
+        if (e.type === "keydown" && e.keyCode !== 32) {
+          return;
+        }
         if (this.state === "start") {
           this.state = "pressing";
           this.pressingTo = setTimeout(_.bind(this.onPressingTimeout, this), 400);
@@ -204,6 +208,9 @@
         }
       },
       onPadRelease: function(e) {
+        if (e.type === "keydown" && e.keyCode !== 32) {
+          return;
+        }
         if (this.state === "pressing") {
           this.start();
           return clearTimeout(this.pressingTo);
@@ -218,6 +225,12 @@
           this.generateScramble();
           this.$pad.removeClass("success");
           return $(".left-off-canvas-toggle").click();
+        }
+      },
+      onPadMove: function(e) {
+        if (this.state === "pressing") {
+          this.start();
+          return clearTimeout(this.pressingTo);
         }
       },
       onClickPuzzle: function(e) {

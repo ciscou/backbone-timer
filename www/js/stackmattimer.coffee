@@ -103,14 +103,15 @@ $ ->
   AppView = Backbone.View.extend
     el: $("#stackmattimer")
     events:
-      "mousedown   #pad": "onPadPress"
-      "mouseup     #pad": "onPadRelease",
-      "touchstart  #pad": "onPadPress",
-      "touchend    #pad": "onPadRelease",
-      "touchcancel #pad": "onPadRelease",
+      "mousedown  #pad": "onPadPress"
+      "mouseup    #pad": "onPadRelease",
+      "touchstart #pad": "onPadPress",
+      "touchend   #pad": "onPadRelease",
+      "touchmove  #pad": "onPadMove",
       "click      #puzzles .puzzle": "onClickPuzzle",
     initialize: ->
       @$pad      = @$("#pad")
+      @$pad.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false)
       localStorage.currentPuzzle ||= "333"
       @$("#puzzles .puzzle").removeClass("selected")
       @$("#puzzles .puzzle[data-puzzle=#{localStorage.currentPuzzle}]").addClass("selected")
@@ -130,6 +131,7 @@ $ ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el
     onPadPress: (e) ->
+      return if e.type == "keydown" && e.keyCode != 32
       if @state == "start"
         @state = "pressing"
         @pressingTo = setTimeout _.bind(@onPressingTimeout, this), 400
@@ -141,6 +143,7 @@ $ ->
         @$pad.text "Finished"
         Times.create @currentTime.attributes
     onPadRelease: (e) ->
+      return if e.type == "keydown" && e.keyCode != 32
       if @state == "pressing"
         @start()
         clearTimeout @pressingTo
@@ -155,6 +158,10 @@ $ ->
         @generateScramble()
         @$pad.removeClass "success"
         $(".left-off-canvas-toggle").click()
+    onPadMove: (e) ->
+      if @state == "pressing"
+        @start()
+        clearTimeout @pressingTo
     onClickPuzzle: (e) ->
       e.preventDefault()
       $target = $(e.currentTarget)
