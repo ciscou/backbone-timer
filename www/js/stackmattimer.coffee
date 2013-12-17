@@ -60,7 +60,7 @@ $ ->
       if @length-offset >= n
         latestN = @slice(@length-n-offset, @length-offset)
         times = latestN.map (t) -> t.getMsWithPenalties()
-        timesWithoutBestAndWorst = times.sort().slice(1, n-1)
+        timesWithoutBestAndWorst = _.sortBy(times, (t) -> t).slice(1, n-1)
         sum = timesWithoutBestAndWorst.reduce ((a, e) -> a + e), 0
         attrs.dnf = !isFinite(sum)
         attrs.ms = sum / (n-2)

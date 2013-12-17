@@ -109,7 +109,9 @@
           times = latestN.map(function(t) {
             return t.getMsWithPenalties();
           });
-          timesWithoutBestAndWorst = times.sort().slice(1, n - 1);
+          timesWithoutBestAndWorst = _.sortBy(times, function(t) {
+            return t;
+          }).slice(1, n - 1);
           sum = timesWithoutBestAndWorst.reduce((function(a, e) {
             return a + e;
           }), 0);
