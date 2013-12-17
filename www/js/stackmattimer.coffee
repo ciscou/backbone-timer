@@ -14,6 +14,13 @@ $ ->
       ft = "#{m}:#{@twoDigits(s)}.#{@threeDigits(ms)}"
       ft += " +2" if @get("plus2")
       ft
+    getMsWithPenalties: ->
+      if @get("dnf")
+        Infinity
+      else
+        ms = @get("ms")
+        ms += 2000 if @get("plus2")
+        ms
     togglePlus2: ->
       @save plus2: !@get("plus2")
     toggleDnf: ->
@@ -32,29 +39,43 @@ $ ->
   TimeList = Backbone.Collection.extend
     localStorage: new Backbone.LocalStorage("TimeList")
     model: Time
+    sessionAverage: ->
+      n = @length
+      offset = 0
+      attrs = {}
+      if @length-offset >= n
+        latestN = @slice(@length-n-offset, @length-offset)
+        times = latestN.map (t) -> t.getMsWithPenalties()
+        sum = times.reduce ((a, e) -> a + e), 0
+        attrs.dnf = !isFinite(sum)
+        attrs.ms = sum / n
+      new Time attrs
     average5: ->
       @average(5)
     average12: ->
       @average(12)
-    average: (n) ->
+    bestAverage5: ->
+      @bestAverage(5)
+    bestAverage12: ->
+      @bestAverage(12)
+    average: (n, offset=0) ->
+      attrs = {}
+      if @length-offset >= n
+        latestN = @slice(@length-n-offset, @length-offset)
+        times = latestN.map (t) -> t.getMsWithPenalties()
+        timesWithoutBestAndWorst = times.sort().slice(1, n-1)
+        sum = timesWithoutBestAndWorst.reduce ((a, e) -> a + e), 0
+        attrs.dnf = !isFinite(sum)
+        attrs.ms = sum / (n-2)
+      new Time attrs
+    bestAverage: (n) ->
       attrs = {}
       if @length >= n
-        slice = @slice(@length-n, @length)
-        dnfs  = _.filter(slice, (e) -> e.get("dnf")).length
-        if dnfs > 1
-          attrs.dnf = true
-        else
-          times = _.reject(slice, (e) -> e.get("dnf")).map (e) ->
-            ms = e.get("ms")
-            ms += 2000 if e.get("plus2")
-            ms
-          sum   = times.reduce ((a, e) -> a + e), 0
-          best  = _.min times
-          worst = if dnfs == 0
-                    _.max times
-                  else
-                    0
-          attrs.ms = (sum - best - worst) / (n - 2)
+        averages = (@average(n, offset) for offset in [0..@length-n])
+        times = averages.map (t) -> t.getMsWithPenalties()
+        best = _.min times
+        attrs.dnf = !isFinite(best)
+        attrs.ms = best
       new Time attrs
   Times = new TimeList
 
@@ -126,8 +147,11 @@ $ ->
       $(document).keydown _.bind(@onPadPress, @)
       $(document).keyup   _.bind(@onPadRelease, @)
     render: ->
+      @$("#session-average").text Times.sessionAverage().formattedTime()
       @$("#average-5").text Times.average5().formattedTime()
       @$("#average-12").text Times.average12().formattedTime()
+      @$("#best-average-5").text Times.bestAverage5().formattedTime()
+      @$("#best-average-12").text Times.bestAverage12().formattedTime()
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el

@@ -24,6 +24,18 @@
         }
         return ft;
       },
+      getMsWithPenalties: function() {
+        var ms;
+        if (this.get("dnf")) {
+          return Infinity;
+        } else {
+          ms = this.get("ms");
+          if (this.get("plus2")) {
+            ms += 2000;
+          }
+          return ms;
+        }
+      },
       togglePlus2: function() {
         return this.save({
           plus2: !this.get("plus2")
@@ -59,40 +71,74 @@
     TimeList = Backbone.Collection.extend({
       localStorage: new Backbone.LocalStorage("TimeList"),
       model: Time,
+      sessionAverage: function() {
+        var attrs, latestN, n, offset, sum, times;
+        n = this.length;
+        offset = 0;
+        attrs = {};
+        if (this.length - offset >= n) {
+          latestN = this.slice(this.length - n - offset, this.length - offset);
+          times = latestN.map(function(t) {
+            return t.getMsWithPenalties();
+          });
+          sum = times.reduce((function(a, e) {
+            return a + e;
+          }), 0);
+          attrs.dnf = !isFinite(sum);
+          attrs.ms = sum / n;
+        }
+        return new Time(attrs);
+      },
       average5: function() {
         return this.average(5);
       },
       average12: function() {
         return this.average(12);
       },
-      average: function(n) {
-        var attrs, best, dnfs, slice, sum, times, worst;
+      bestAverage5: function() {
+        return this.bestAverage(5);
+      },
+      bestAverage12: function() {
+        return this.bestAverage(12);
+      },
+      average: function(n, offset) {
+        var attrs, latestN, sum, times, timesWithoutBestAndWorst;
+        if (offset == null) {
+          offset = 0;
+        }
+        attrs = {};
+        if (this.length - offset >= n) {
+          latestN = this.slice(this.length - n - offset, this.length - offset);
+          times = latestN.map(function(t) {
+            return t.getMsWithPenalties();
+          });
+          timesWithoutBestAndWorst = times.sort().slice(1, n - 1);
+          sum = timesWithoutBestAndWorst.reduce((function(a, e) {
+            return a + e;
+          }), 0);
+          attrs.dnf = !isFinite(sum);
+          attrs.ms = sum / (n - 2);
+        }
+        return new Time(attrs);
+      },
+      bestAverage: function(n) {
+        var attrs, averages, best, offset, times;
         attrs = {};
         if (this.length >= n) {
-          slice = this.slice(this.length - n, this.length);
-          dnfs = _.filter(slice, function(e) {
-            return e.get("dnf");
-          }).length;
-          if (dnfs > 1) {
-            attrs.dnf = true;
-          } else {
-            times = _.reject(slice, function(e) {
-              return e.get("dnf");
-            }).map(function(e) {
-              var ms;
-              ms = e.get("ms");
-              if (e.get("plus2")) {
-                ms += 2000;
-              }
-              return ms;
-            });
-            sum = times.reduce((function(a, e) {
-              return a + e;
-            }), 0);
-            best = _.min(times);
-            worst = dnfs === 0 ? _.max(times) : 0;
-            attrs.ms = (sum - best - worst) / (n - 2);
-          }
+          averages = (function() {
+            var _i, _ref, _results;
+            _results = [];
+            for (offset = _i = 0, _ref = this.length - n; 0 <= _ref ? _i <= _ref : _i >= _ref; offset = 0 <= _ref ? ++_i : --_i) {
+              _results.push(this.average(n, offset));
+            }
+            return _results;
+          }).call(this);
+          times = averages.map(function(t) {
+            return t.getMsWithPenalties();
+          });
+          best = _.min(times);
+          attrs.dnf = !isFinite(best);
+          attrs.ms = best;
         }
         return new Time(attrs);
       }
@@ -181,8 +227,11 @@
         return $(document).keyup(_.bind(this.onPadRelease, this));
       },
       render: function() {
+        this.$("#session-average").text(Times.sessionAverage().formattedTime());
         this.$("#average-5").text(Times.average5().formattedTime());
-        return this.$("#average-12").text(Times.average12().formattedTime());
+        this.$("#average-12").text(Times.average12().formattedTime());
+        this.$("#best-average-5").text(Times.bestAverage5().formattedTime());
+        return this.$("#best-average-12").text(Times.bestAverage12().formattedTime());
       },
       addTime: function(time) {
         var view;
