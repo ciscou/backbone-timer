@@ -44,7 +44,10 @@
               %a#best-average-12{href: "#"}
           %ul#time-list.off-canvas-list
             %li
-              %label Individual times
+              %label
+                Individual times
+                = surround "(", ")" do
+                  %span#time-list-length
 
         %aside.right-off-canvas-menu
           %ul#puzzles.off-canvas-list

@@ -145,6 +145,7 @@ $ ->
       @$("#average-12").text Times.average12().formattedTime()
       @$("#best-average-5").text Times.bestAverage5().formattedTime()
       @$("#best-average-12").text Times.bestAverage12().formattedTime()
+      @$("#time-list-length").text Times.length
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el

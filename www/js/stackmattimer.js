@@ -226,7 +226,8 @@
         this.$("#average-5").text(Times.average5().formattedTime());
         this.$("#average-12").text(Times.average12().formattedTime());
         this.$("#best-average-5").text(Times.bestAverage5().formattedTime());
-        return this.$("#best-average-12").text(Times.bestAverage12().formattedTime());
+        this.$("#best-average-12").text(Times.bestAverage12().formattedTime());
+        return this.$("#time-list-length").text(Times.length);
       },
       addTime: function(time) {
         var view;
