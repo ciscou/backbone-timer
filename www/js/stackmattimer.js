@@ -247,17 +247,22 @@
         return this.currentTime.set("ms", elapsed);
       },
       generateScramble: function() {
-        var cb, self;
-        this.generatedScramblers || (this.generatedScramblers = {});
-        if (this.generatedScramblers[localStorage.currentPuzzle]) {
+        var f, self;
+        this.$("#scramble").text("Loading...");
+        this.initializedScramblers || (this.initializedScramblers = {});
+        if (this.initializedScramblers[localStorage.currentPuzzle]) {
           return this.$("#scramble").text(scramblers[localStorage.currentPuzzle].getRandomScramble().scramble_string);
         } else {
           self = this;
-          cb = function() {
-            self.generatedScramblers[localStorage.currentPuzzle] = true;
-            return self.generateScramble();
+          f = function() {
+            var cb;
+            cb = function() {
+              self.initializedScramblers[localStorage.currentPuzzle] = true;
+              return self.generateScramble();
+            };
+            return scramblers[localStorage.currentPuzzle].initialize(cb, Math);
           };
-          return scramblers[localStorage.currentPuzzle].initialize(cb, Math);
+          return setTimeout(f, 50);
         }
       },
       start: function() {
