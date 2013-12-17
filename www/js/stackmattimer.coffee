@@ -139,6 +139,21 @@ $ ->
       @generateScramble()
       $(document).keydown _.bind(@onPadPress, @)
       $(document).keyup   _.bind(@onPadRelease, @)
+      $(document).swipe
+        swipeLeft: ->
+          left = $(".off-canvas-wrap").hasClass "move-left"
+          right = $(".off-canvas-wrap").hasClass "move-right"
+          if right
+            $(".left-off-canvas-toggle").click()
+          else unless left
+            $(".right-off-canvas-toggle").click()
+        swipeRight: ->
+          left = $(".off-canvas-wrap").hasClass "move-left"
+          right = $(".off-canvas-wrap").hasClass "move-right"
+          if left
+            $(".right-off-canvas-toggle").click()
+          else unless right
+            $(".left-off-canvas-toggle").click()
     render: ->
       @$("#session-average").text Times.sessionAverage().formattedTime()
       @$("#average-5").text Times.average5().formattedTime()

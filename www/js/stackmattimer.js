@@ -219,7 +219,29 @@
         this.start();
         this.generateScramble();
         $(document).keydown(_.bind(this.onPadPress, this));
-        return $(document).keyup(_.bind(this.onPadRelease, this));
+        $(document).keyup(_.bind(this.onPadRelease, this));
+        return $(document).swipe({
+          swipeLeft: function() {
+            var left, right;
+            left = $(".off-canvas-wrap").hasClass("move-left");
+            right = $(".off-canvas-wrap").hasClass("move-right");
+            if (right) {
+              return $(".left-off-canvas-toggle").click();
+            } else if (!left) {
+              return $(".right-off-canvas-toggle").click();
+            }
+          },
+          swipeRight: function() {
+            var left, right;
+            left = $(".off-canvas-wrap").hasClass("move-left");
+            right = $(".off-canvas-wrap").hasClass("move-right");
+            if (left) {
+              return $(".right-off-canvas-toggle").click();
+            } else if (!right) {
+              return $(".left-off-canvas-toggle").click();
+            }
+          }
+        });
       },
       render: function() {
         this.$("#session-average").text(Times.sessionAverage().formattedTime());
