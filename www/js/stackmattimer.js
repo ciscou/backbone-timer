@@ -9,13 +9,13 @@
       formattedTime: function() {
         var ft, m, ms, s, _ref, _ref1;
         ms = this.get("ms");
-        if (ms == null) {
-          return "N/A";
-        }
         if (this.get("dnf")) {
           return "DNF";
         }
-        ms = Math.floor(ms);
+        if (ms == null) {
+          return "N/A";
+        }
+        ms = Math.round(ms);
         _ref = this.divmod(ms, 1000), s = _ref[0], ms = _ref[1];
         _ref1 = this.divmod(s, 60), m = _ref1[0], s = _ref1[1];
         ft = "" + m + ":" + (this.twoDigits(s)) + "." + (this.threeDigits(ms));
@@ -66,18 +66,35 @@
         return this.average(12);
       },
       average: function(n) {
-        var best, sum, times, worst;
+        var attrs, best, dnfs, slice, sum, times, worst;
+        attrs = {};
         if (this.length >= n) {
-          times = this.slice(0, n).map(function(e) {
-            return e.get("ms");
-          });
-          sum = times.reduce((function(a, e) {
-            return a + e;
-          }), 0);
-          best = _.min(times);
-          worst = _.max(times);
-          return (sum - best - worst) / (n - 2);
+          slice = this.slice(this.length - n, this.length);
+          dnfs = _.filter(slice, function(e) {
+            return e.get("dnf");
+          }).length;
+          if (dnfs > 1) {
+            attrs.dnf = true;
+          } else {
+            times = _.reject(slice, function(e) {
+              return e.get("dnf");
+            }).map(function(e) {
+              var ms;
+              ms = e.get("ms");
+              if (e.get("plus2")) {
+                ms += 2000;
+              }
+              return ms;
+            });
+            sum = times.reduce((function(a, e) {
+              return a + e;
+            }), 0);
+            best = _.min(times);
+            worst = dnfs === 0 ? _.max(times) : 0;
+            attrs.ms = (sum - best - worst) / (n - 2);
+          }
         }
+        return new Time(attrs);
       }
     });
     Times = new TimeList;
@@ -163,15 +180,8 @@
         return $(document).keyup(_.bind(this.onPadRelease, this));
       },
       render: function() {
-        var average12, average5;
-        average5 = Times.average5();
-        average12 = Times.average12();
-        this.$("#average-5").text(new Time({
-          ms: average5
-        }).formattedTime());
-        return this.$("#average-12").text(new Time({
-          ms: average12
-        }).formattedTime());
+        this.$("#average-5").text(Times.average5().formattedTime());
+        return this.$("#average-12").text(Times.average12().formattedTime());
       },
       addTime: function(time) {
         var view;
@@ -190,9 +200,7 @@
           clearTimeout(this.runningTo);
           this.tick();
           this.$pad.text("Finished");
-          return Times.create(this.currentTime.attributes, {
-            at: 0
-          });
+          return Times.create(this.currentTime.attributes);
         }
       },
       onPadRelease: function(e) {

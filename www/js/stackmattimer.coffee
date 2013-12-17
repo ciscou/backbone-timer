@@ -5,10 +5,10 @@ $ ->
       dnf  : false
     formattedTime: ->
       ms = @get "ms"
-      return "N/A" unless ms?
       return "DNF" if @get("dnf")
+      return "N/A" unless ms?
 
-      ms      = Math.floor ms
+      ms      = Math.round ms
       [s, ms] = @divmod ms, 1000
       [m, s ] = @divmod s,  60
       ft = "#{m}:#{@twoDigits(s)}.#{@threeDigits(ms)}"
@@ -37,12 +37,25 @@ $ ->
     average12: ->
       @average(12)
     average: (n) ->
+      attrs = {}
       if @length >= n
-        times = @slice(0, n).map (e) -> e.get("ms")
-        sum   = times.reduce ((a, e) -> a + e), 0
-        best  = _.min times
-        worst = _.max times
-        (sum - best - worst) / (n - 2)
+        slice = @slice(@length-n, @length)
+        dnfs  = _.filter(slice, (e) -> e.get("dnf")).length
+        if dnfs > 1
+          attrs.dnf = true
+        else
+          times = _.reject(slice, (e) -> e.get("dnf")).map (e) ->
+            ms = e.get("ms")
+            ms += 2000 if e.get("plus2")
+            ms
+          sum   = times.reduce ((a, e) -> a + e), 0
+          best  = _.min times
+          worst = if dnfs == 0
+                    _.max times
+                  else
+                    0
+          attrs.ms = (sum - best - worst) / (n - 2)
+      new Time attrs
   Times = new TimeList
 
   TimeView = Backbone.View.extend
@@ -111,10 +124,8 @@ $ ->
       $(document).keydown _.bind(@onPadPress, @)
       $(document).keyup   _.bind(@onPadRelease, @)
     render: ->
-      average5  = Times.average5()
-      average12 = Times.average12()
-      @$("#average-5").text  new Time(ms: average5).formattedTime()
-      @$("#average-12").text new Time(ms: average12).formattedTime()
+      @$("#average-5").text Times.average5().formattedTime()
+      @$("#average-12").text Times.average12().formattedTime()
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el
@@ -128,7 +139,7 @@ $ ->
         clearTimeout @runningTo
         @tick()
         @$pad.text "Finished"
-        Times.create @currentTime.attributes, at: 0
+        Times.create @currentTime.attributes
     onPadRelease: (e) ->
       if @state == "pressing"
         @start()
