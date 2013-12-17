@@ -40,15 +40,12 @@ $ ->
     localStorage: new Backbone.LocalStorage("TimeList")
     model: Time
     sessionAverage: ->
-      n = @length
-      offset = 0
       attrs = {}
-      if @length-offset >= n
-        latestN = @slice(@length-n-offset, @length-offset)
-        times = latestN.map (t) -> t.getMsWithPenalties()
+      if @length > 0
+        times = @map (t) -> t.getMsWithPenalties()
         sum = times.reduce ((a, e) -> a + e), 0
         attrs.dnf = !isFinite(sum)
-        attrs.ms = sum / n
+        attrs.ms = sum / @length
       new Time attrs
     average5: ->
       @average(5)

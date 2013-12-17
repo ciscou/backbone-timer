@@ -72,20 +72,17 @@
       localStorage: new Backbone.LocalStorage("TimeList"),
       model: Time,
       sessionAverage: function() {
-        var attrs, latestN, n, offset, sum, times;
-        n = this.length;
-        offset = 0;
+        var attrs, sum, times;
         attrs = {};
-        if (this.length - offset >= n) {
-          latestN = this.slice(this.length - n - offset, this.length - offset);
-          times = latestN.map(function(t) {
+        if (this.length > 0) {
+          times = this.map(function(t) {
             return t.getMsWithPenalties();
           });
           sum = times.reduce((function(a, e) {
             return a + e;
           }), 0);
           attrs.dnf = !isFinite(sum);
-          attrs.ms = sum / n;
+          attrs.ms = sum / this.length;
         }
         return new Time(attrs);
       },
