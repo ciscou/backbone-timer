@@ -65,7 +65,6 @@ $ ->
       "click .plus2" : "onPlus2Click"
       "click .dnf"   : "onDnfClick"
       "click .remove": "onRemoveClick"
-      "click .time"  : "onTimeClick"
       "click"        : "onClick"
     initialize: ->
       @listenTo @model, "change", @render
@@ -75,19 +74,21 @@ $ ->
       @
     onClick: (e) ->
       e.preventDefault()
-    onTimeClick: (e) ->
-      e.preventDefault()
+      @$el.siblings().removeClass("selected")
       @$el.toggleClass("selected")
     onPlus2Click: (e) ->
       e.preventDefault()
+      e.stopPropagation()
       @model.togglePlus2()
       @$el.removeClass("selected")
     onDnfClick: (e) ->
       e.preventDefault()
+      e.stopPropagation()
       @model.toggleDnf()
       @$el.removeClass("selected")
     onRemoveClick: (e) ->
       e.preventDefault()
+      e.stopPropagation()
       @model.destroy()
 
   DisplayView = Backbone.View.extend

@@ -105,7 +105,6 @@
         "click .plus2": "onPlus2Click",
         "click .dnf": "onDnfClick",
         "click .remove": "onRemoveClick",
-        "click .time": "onTimeClick",
         "click": "onClick"
       },
       initialize: function() {
@@ -117,24 +116,25 @@
         return this;
       },
       onClick: function(e) {
-        return e.preventDefault();
-      },
-      onTimeClick: function(e) {
         e.preventDefault();
+        this.$el.siblings().removeClass("selected");
         return this.$el.toggleClass("selected");
       },
       onPlus2Click: function(e) {
         e.preventDefault();
+        e.stopPropagation();
         this.model.togglePlus2();
         return this.$el.removeClass("selected");
       },
       onDnfClick: function(e) {
         e.preventDefault();
+        e.stopPropagation();
         this.model.toggleDnf();
         return this.$el.removeClass("selected");
       },
       onRemoveClick: function(e) {
         e.preventDefault();
+        e.stopPropagation();
         return this.model.destroy();
       }
     });
