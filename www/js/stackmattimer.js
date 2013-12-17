@@ -159,21 +159,17 @@
         return this;
       },
       onClick: function(e) {
-        e.preventDefault();
-        this.$el.siblings().removeClass("selected");
-        return this.$el.toggleClass("selected");
+        return e.preventDefault();
       },
       onPlus2Click: function(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.model.togglePlus2();
-        return this.$el.removeClass("selected");
+        return this.model.togglePlus2();
       },
       onDnfClick: function(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.model.toggleDnf();
-        return this.$el.removeClass("selected");
+        return this.model.toggleDnf();
       },
       onRemoveClick: function(e) {
         e.preventDefault();
