@@ -92,7 +92,14 @@
             </div>
           </div>
           <script id='time-template' type='text/template'>
-            <a href="#"><%= formattedTime %></a>
+            <a href="#">
+            <span class="time"><%= formattedTime %></span>
+            <div class="right">
+            <span class="plus2  label <% if(!plus2) { %>secondary<% } %>">+2</span>
+            <span class="dnf    label <% if(!dnf)   { %>secondary<% } %>">dnf</span>
+            <span class="remove label alert">x</span>
+            </div>
+            </a>
           </script>
           <script id='display-template' type='text/template'>
             <%= formattedTime %>

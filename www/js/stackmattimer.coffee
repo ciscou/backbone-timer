@@ -1,10 +1,23 @@
 $ ->
   Time = Backbone.Model.extend
+    defaults:
+      plus2: false
+      dnf  : false
     formattedTime: ->
-      ms      = Math.floor @get("ms")
+      ms = @get "ms"
+      return "N/A" unless ms?
+      return "DNF" if @get("dnf")
+
+      ms      = Math.floor ms
       [s, ms] = @divmod ms, 1000
       [m, s ] = @divmod s,  60
-      "#{m}:#{@twoDigits(s)}.#{@threeDigits(ms)}"
+      ft = "#{m}:#{@twoDigits(s)}.#{@threeDigits(ms)}"
+      ft += " +2" if @get("plus2")
+      ft
+    togglePlus2: ->
+      @save plus2: !@get("plus2")
+    toggleDnf: ->
+      @save dnf: !@get("dnf")
     toTemplateJSON: ->
       json = @toJSON()
       _.extend json, formattedTime: @formattedTime()
@@ -35,12 +48,34 @@ $ ->
   TimeView = Backbone.View.extend
     tagName: "li"
     template: _.template $("#time-template").html()
+    events:
+      "click .plus2" : "onPlus2Click"
+      "click .dnf"   : "onDnfClick"
+      "click .remove": "onRemoveClick"
+      "click .time"  : "onTimeClick"
+      "click"        : "onClick"
     initialize: ->
       @listenTo @model, "change", @render
       @listenTo @model, "destroy", @remove
     render: ->
       @$el.html @template @model.toTemplateJSON()
       @
+    onClick: (e) ->
+      e.preventDefault()
+    onTimeClick: (e) ->
+      e.preventDefault()
+      @$el.toggleClass("selected")
+    onPlus2Click: (e) ->
+      e.preventDefault()
+      @model.togglePlus2()
+      @$el.removeClass("selected")
+    onDnfClick: (e) ->
+      e.preventDefault()
+      @model.toggleDnf()
+      @$el.removeClass("selected")
+    onRemoveClick: (e) ->
+      e.preventDefault()
+      @model.destroy()
 
   DisplayView = Backbone.View.extend
     el: $("#display")
@@ -78,14 +113,8 @@ $ ->
     render: ->
       average5  = Times.average5()
       average12 = Times.average12()
-      @$("#average-5").text if average5?
-                              new Time(ms: average5).formattedTime()
-                            else
-                              "N/A"
-      @$("#average-12").text if average12?
-                               new Time(ms: average12).formattedTime()
-                             else
-                               "N/A"
+      @$("#average-5").text  new Time(ms: average5).formattedTime()
+      @$("#average-12").text new Time(ms: average12).formattedTime()
     addTime: (time) ->
       view = new TimeView model: time
       @$("#time-list li:first-child").after view.render().el

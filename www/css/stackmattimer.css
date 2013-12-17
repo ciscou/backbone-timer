@@ -17,6 +17,15 @@ html, body, .off-canvas-wrap, .inner-wrap, .main-section {
   font-size: 2em;
   margin-bottom: 2em; }
 
+#time-list li span.plus2 {
+  margin-left: 1em; }
+
+#time-list li span.plus2, #time-list li span.dnf, #time-list li span.remove {
+  visibility: hidden; }
+
+#time-list li:hover span.plus2, #time-list li:hover span.dnf, #time-list li:hover span.remove, #time-list li.selected span.plus2, #time-list li.selected span.dnf, #time-list li.selected span.remove {
+  visibility: visible; }
+
 #puzzles .puzzle.selected {
   background-color: #008cba;
   color: white; }

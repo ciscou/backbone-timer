@@ -17,6 +17,17 @@ html, body, .off-canvas-wrap, .inner-wrap, .main-section
   font-size: 2em
   margin-bottom: 2em
 
+#time-list li span.plus2
+  margin-left: 1em
+
+#time-list li
+  span.plus2, span.dnf, span.remove
+    visibility: hidden
+
+#time-list li:hover, #time-list li.selected,
+  span.plus2, span.dnf, span.remove
+    visibility: visible
+
 #puzzles .puzzle.selected
   background-color: #008cba
   color: white

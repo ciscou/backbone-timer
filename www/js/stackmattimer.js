@@ -2,12 +2,37 @@
   $(function() {
     var AppView, DisplayView, Time, TimeList, TimeView, Times;
     Time = Backbone.Model.extend({
+      defaults: {
+        plus2: false,
+        dnf: false
+      },
       formattedTime: function() {
-        var m, ms, s, _ref, _ref1;
-        ms = Math.floor(this.get("ms"));
+        var ft, m, ms, s, _ref, _ref1;
+        ms = this.get("ms");
+        if (ms == null) {
+          return "N/A";
+        }
+        if (this.get("dnf")) {
+          return "DNF";
+        }
+        ms = Math.floor(ms);
         _ref = this.divmod(ms, 1000), s = _ref[0], ms = _ref[1];
         _ref1 = this.divmod(s, 60), m = _ref1[0], s = _ref1[1];
-        return "" + m + ":" + (this.twoDigits(s)) + "." + (this.threeDigits(ms));
+        ft = "" + m + ":" + (this.twoDigits(s)) + "." + (this.threeDigits(ms));
+        if (this.get("plus2")) {
+          ft += " +2";
+        }
+        return ft;
+      },
+      togglePlus2: function() {
+        return this.save({
+          plus2: !this.get("plus2")
+        });
+      },
+      toggleDnf: function() {
+        return this.save({
+          dnf: !this.get("dnf")
+        });
       },
       toTemplateJSON: function() {
         var json;
@@ -59,6 +84,13 @@
     TimeView = Backbone.View.extend({
       tagName: "li",
       template: _.template($("#time-template").html()),
+      events: {
+        "click .plus2": "onPlus2Click",
+        "click .dnf": "onDnfClick",
+        "click .remove": "onRemoveClick",
+        "click .time": "onTimeClick",
+        "click": "onClick"
+      },
       initialize: function() {
         this.listenTo(this.model, "change", this.render);
         return this.listenTo(this.model, "destroy", this.remove);
@@ -66,6 +98,27 @@
       render: function() {
         this.$el.html(this.template(this.model.toTemplateJSON()));
         return this;
+      },
+      onClick: function(e) {
+        return e.preventDefault();
+      },
+      onTimeClick: function(e) {
+        e.preventDefault();
+        return this.$el.toggleClass("selected");
+      },
+      onPlus2Click: function(e) {
+        e.preventDefault();
+        this.model.togglePlus2();
+        return this.$el.removeClass("selected");
+      },
+      onDnfClick: function(e) {
+        e.preventDefault();
+        this.model.toggleDnf();
+        return this.$el.removeClass("selected");
+      },
+      onRemoveClick: function(e) {
+        e.preventDefault();
+        return this.model.destroy();
       }
     });
     DisplayView = Backbone.View.extend({
@@ -113,12 +166,12 @@
         var average12, average5;
         average5 = Times.average5();
         average12 = Times.average12();
-        this.$("#average-5").text(average5 != null ? new Time({
+        this.$("#average-5").text(new Time({
           ms: average5
-        }).formattedTime() : "N/A");
-        return this.$("#average-12").text(average12 != null ? new Time({
+        }).formattedTime());
+        return this.$("#average-12").text(new Time({
           ms: average12
-        }).formattedTime() : "N/A");
+        }).formattedTime());
       },
       addTime: function(time) {
         var view;
